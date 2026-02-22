@@ -1,77 +1,160 @@
-# 🚦 GreenSync — AI Traffic Optimization
+### Sarthak GreenSync
 
-> **AMD Slingshot 2026 Hackathon**  
-> *Sustainable Smart Cities · ROCm-Accelerated Signal Optimization*
+## AI-Driven Traffic Signal Optimization
 
-![GreenSync Dashboard](docs/images/dashboard_screenshot.png)
+### AMD Slingshot 2026 — Technical Report and Implementation Guide
 
-**GreenSync** is an AI-driven traffic management system that dynamically optimizes traffic signal phases to minimize congestion, reduce vehicle idling time, and cut CO₂ emissions across a city grid.
+**Track:** Sustainable Smart Cities
+**Focus:** Intelligent Transportation Systems, Real-Time Optimization, ROCm-Ready Architecture
 
----
+## 1. Executive Summary
 
-## ✨ Features
+GreenSync is an AI-driven traffic management system designed to optimize traffic signal phase timing across an urban grid in real time. The system dynamically adapts signal behavior based on live congestion metrics, reducing vehicle queue lengths, idle time, fuel consumption, and CO₂ emissions.
 
-| Feature | Description |
-|---|---|
-| 🗺 **Live Traffic Map** | 56-intersection city grid on dark OpenStreetMap tiles (react-leaflet) |
-| 🚦 **Real-Time Signals** | Intersection markers switch Green/Yellow/Red every second |
-| 🛣 **Live Route Finding** | Click Start + End — A\* finds the optimal path avoiding congested nodes |
-| 📍 **Geolocation** | "Use My Location" snaps start point to nearest intersection |
-| 📊 **Metrics Chart** | Queue length / delay / CO₂ comparison chart (baseline vs GreenSync) |
-| ⚡ **SPaT Replay Engine** | CSV-based Signal Phase & Timing replay at 1× or accelerated speed |
-| 🔁 **Before/After Compare** | Instant worst-case corridor scenario with CO₂ & fuel savings |
-| 🔌 **SUMO Ready** | Real SUMO/TraCI integration — automatically falls back to mock if SUMO not installed |
+The project demonstrates:
 
----
+* Graph-based traffic modeling
+* Real-time signal phase simulation
+* AI-assisted routing and corridor optimization
+* Deterministic replay and before/after benchmarking
+* Readiness for GPU-accelerated workloads under AMD ROCm
 
-## 🧠 Architecture
+## 2. Problem Statement
+
+Urban traffic congestion results in:
+
+* Excessive idling and fuel waste
+* Increased greenhouse gas emissions
+* Inefficient fixed-time signal plans that do not adapt to demand
+
+Most deployed systems rely on static schedules or localized heuristics. GreenSync addresses this gap by modeling the city as a weighted graph and continuously re-optimizing signal timing and routing decisions based on real-time state.
+
+## 3. System Overview
+
+GreenSync consists of a frontend visualization layer and a backend simulation and optimization engine.
+
+### High-Level Architecture
 
 ```
-┌──────────────────────┐      HTTP/JSON       ┌──────────────────────┐
-│   React Frontend     │ ◄──────────────────► │   Flask Backend      │
-│  react-leaflet map   │                      │  NetworkX A* routing │
-│  recharts charts     │                      │  SUMO / TraCI        │
-│  Tailwind CSS        │                      │  SPaT Engine         │
-└──────────────────────┘                      └──────────────────────┘
-                                                        │
-                                              ┌─────────┴──────────┐
-                                              │   City Graph        │
-                                              │  56-node 7×8 grid  │
-                                              │  (NetworkX)         │
-                                              └────────────────────┘
+┌────────────────────────┐      HTTP / JSON     ┌─────────────────────────┐ 
+│   Frontend Dashboard   │ ◄──────────────────► │   Backend API           │
+│                        │                      │                         │
+│ - Live city map        │                      │ - Traffic simulation    │
+│ - Signal visualization │                      │ - A* pathfinding        │
+│ - KPI charts           │                      │ - SPaT replay engine    │
+└────────────────────────┘                      └─────────────────────────┘
+                                                           │
+                                                  ┌────────┴─────────┐
+                                                  │ City Graph Model │
+                                                  │ 56-node grid     │
+                                                  │ NetworkX         │
+                                                  └──────────────────┘
 ```
 
-### Backend Modules
+## 4. Core Capabilities
 
-| Module | Purpose |
-|---|---|
-| `core/graph.py` | 56-node city grid generator, A\* routing with live traffic weighting |
-| `core/corridor.py` | 8-node predefined corridor, baseline vs optimized simulation loop |
-| `simulation/sumo_runner.py` | TraCI client — live SUMO or deterministic mock fallback |
-| `simulation/mock_sumo.py` | Dual-mode simulation (baseline/optimized) with AM/PM peak waves |
-| `simulation/spat_engine.py` | CSV SPaT reader with configurable replay speed |
-| `app.py` | Flask REST API — 6 endpoints |
+### 4.1 Traffic Modeling
 
-### API Endpoints
+* City represented as a 56-node (7×8) directed graph
+* Edge weights dynamically updated based on queue length and signal state
+* Supports predefined critical corridors for worst-case analysis
 
-| Endpoint | Method | Description |
-|---|---|---|
-| `/health` | GET | Service health + SUMO status |
-| `/api/config` | GET | Full graph topology (nodes + edges) |
-| `/api/live-data` | GET | Real-time signals, queues, metrics |
-| `/api/route` | POST | A\* path between two points (node IDs or lat/lon) |
-| `/api/compare` | GET | Baseline vs GreenSync 300-second time series |
-| `/api/spat/timeline` | GET | Full SPaT replay timeline |
+### 4.2 Signal Phase and Timing (SPaT)
 
----
+* Real-time signal state updates at 1-second resolution
+* CSV-based SPaT timeline replay for deterministic evaluation
+* Accelerated playback for rapid benchmarking
 
-## 🚀 Quick Start
+### 4.3 AI-Assisted Routing
+
+* A* pathfinding over live-weighted graph
+* Avoids congested intersections
+* Accepts node IDs or geographic coordinates
+
+### 4.4 Baseline vs Optimized Comparison
+
+* Fixed-time baseline simulation
+* Optimized adaptive signal control
+* Time-series comparison of:
+
+  * Queue length
+  * Average delay
+  * Estimated CO₂ emissions
+
+### 4.5 SUMO Integration
+
+* Native TraCI support for real microscopic traffic simulation
+* Automatic fallback to deterministic mock simulation if SUMO is unavailable
+* Identical API surface for both modes
+
+## 5. Backend Design
+
+### Module Responsibilities
+
+| Module                      | Description                                                        |
+| --------------------------- | ------------------------------------------------------------------ |
+| `core/graph.py`             | City grid generation and A* routing with live congestion weighting |
+| `core/corridor.py`          | Predefined corridor simulation for worst-case evaluation           |
+| `simulation/sumo_runner.py` | TraCI-based SUMO interface with runtime detection                  |
+| `simulation/mock_sumo.py`   | Deterministic traffic simulator with peak-wave modeling            |
+| `simulation/spat_engine.py` | SPaT CSV parser and replay controller                              |
+| `app.py`                    | Flask REST API exposing simulation and optimization endpoints      |
+
+## 6. REST API Specification
+
+| Endpoint             | Method | Purpose                                     |
+| -------------------- | ------ | ------------------------------------------- |
+| `/health`            | GET    | Service health and SUMO availability        |
+| `/api/config`        | GET    | Full city graph topology                    |
+| `/api/live-data`     | GET    | Signal states, queues, live KPIs            |
+| `/api/route`         | POST   | A* routing between two points               |
+| `/api/compare`       | GET    | Baseline vs optimized metrics (300s window) |
+| `/api/spat/timeline` | GET    | Full SPaT replay dataset                    |
+
+## 7. Frontend Capabilities
+
+* Interactive city map with live signal states
+* Real-time routing visualization
+* KPI dashboard with time-series charts
+* Before/after scenario comparison panel
+* Geolocation-based routing initialization
+
+## 8. AMD Slingshot and Acceleration Readiness
+
+While the current prototype executes on CPU, the architecture is intentionally designed for GPU acceleration:
+
+### ROCm-Ready Workloads
+
+* Graph traversal and pathfinding
+* Parallel corridor simulations
+* Batched SPaT evaluation
+* Time-series KPI aggregation
+
+### Planned GPU Offload Targets
+
+* NetworkX graph operations → HIP/CuGraph equivalent
+* Multi-scenario simulation loops
+* Reinforcement learning–based signal optimization
+
+The modular backend enables transparent substitution of accelerated kernels without frontend or API changes.
+
+## 9. Reproducibility and Determinism
+
+* Fixed random seeds in mock simulation
+* CSV-based SPaT replay
+* Deterministic baseline and optimized runs
+* Identical inputs produce identical outputs
+
+This ensures fair benchmarking and hackathon evaluation.
+
+## 10. Setup and Execution Guide
 
 ### Prerequisites
-- Python 3.10+
-- Node.js 18+
 
-### 1 — Backend
+* Python 3.10+
+* Node.js 18+
+
+### Backend Setup
 
 ```bash
 cd backend
@@ -84,93 +167,46 @@ source venv/bin/activate
 
 pip install -r requirements.txt
 python app.py
-# → http://localhost:5000
 ```
 
-### 2 — Frontend
+
+### Frontend Setup
 
 ```bash
 cd frontend
 npm install
 npm run dev
-# → http://localhost:5173
 ```
 
----
+## 11. Enabling Real SUMO Simulation
 
-## 🎮 Demo Walkthrough
+By default, GreenSync runs in mock simulation mode.
 
-1. **Open** `http://localhost:5173`
-2. **Explore the map** — 56 intersections pulse Green/Yellow/Red in real time
-3. **Route Finding** — click any intersection (Start 🔵), then click another (End 🟣) — a glowing blue path appears
-4. **Geolocation** — click 📍 to snap Start to your real location
-5. **Metrics Chart** — scroll down to see queue length over the 300s simulation; the amber band marks the worst-case surge
-6. **Run Scenario** — click "▶ Run Scenario" to see the AI's improvement vs fixed timing
-
----
-
-## ⚡ Activating Real SUMO
-
-The system runs in mock mode out of the box. To use live SUMO simulation:
+To enable live SUMO:
 
 ```bash
-# 1. Install SUMO ≥ 1.8.0
-#    https://sumo.dlr.de/docs/Installing
-
-# 2. Install Python bindings
 pip install traci
-
-# 3. Restart the backend — it auto-detects SUMO
-python app.py
-# → [SUMO] Simulation started: data/ahmedabad.sumocfg
 ```
 
----
+Install SUMO (version ≥ 1.8.0), then restart the backend. The system automatically detects SUMO and switches to live TraCI mode.
 
-## 🛠 Tech Stack
-
-| Layer | Technology |
-|---|---|
-| Frontend | React 19, Vite, TypeScript |
-| Mapping | react-leaflet + CartoDB Dark tiles |
-| Charts | Recharts |
-| Styling | TailwindCSS |
-| Backend | Python 3, Flask, Flask-CORS |
-| Graph | NetworkX (A\* pathfinding) |
-| Simulation | SUMO + TraCI (optional), mock fallback |
-
----
-
-## 📁 Project Structure
+## 12. Project Structure
 
 ```
 amd-slingshot-mvp/
 ├── backend/
-│   ├── app.py                  # Flask API
-│   ├── requirements.txt
+│   ├── app.py
 │   ├── core/
-│   │   ├── graph.py            # 56-node city grid + A* routing
-│   │   └── corridor.py         # 8-node corridor comparison
-│   ├── data/
-│   │   ├── sample_spat.csv     # SPaT replay data (300s)
-│   │   └── ahmedabad.sumocfg   # SUMO config
-│   └── simulation/
-│       ├── sumo_runner.py      # TraCI client + mock fallback
-│       ├── mock_sumo.py        # Dual-mode traffic simulation
-│       └── spat_engine.py      # SPaT CSV replay engine
+│   ├── simulation/
+│   └── data/
 └── frontend/
     └── src/
         ├── components/
-        │   ├── TrafficMap.tsx  # react-leaflet interactive map
-        │   ├── Dashboard.tsx   # Main layout + KPI strip
-        │   ├── MetricsChart.tsx # Recharts time-series
-        │   └── ComparePanel.tsx # Before/After comparison
         └── services/
-            └── api.ts          # Backend API client
 ```
+**Note:- this is an mvp version of the actual project for the amd slingshot contest, for details about all my research on this idea check out here:  https://github.com/dhruv-atomic-mui21/sarthak-GS.git
+## 13. License
 
----
-
-## 📄 License
-
-MIT © 2026 GreenSync Team · AMD Slingshot Hackathon
+MIT License
+© 2026 GreenSync Team
+AMD Slingshot Hackathon Submission
