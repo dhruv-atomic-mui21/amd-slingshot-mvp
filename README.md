@@ -19,6 +19,8 @@ The project demonstrates:
 * Deterministic replay and before/after benchmarking
 * Readiness for GPU-accelerated workloads under AMD ROCm
 
+![GreenSync Live Dashboard — 56-intersection map with A* route, live signals, and KPIs](frontend/src/assets/dashboard.png)
+
 ## 2. Problem Statement
 
 Urban traffic congestion results in:
@@ -118,6 +120,8 @@ GreenSync consists of a frontend visualization layer and a backend simulation an
 * KPI dashboard with time-series charts
 * Before/after scenario comparison panel
 * Geolocation-based routing initialization
+
+![Queue Length Over Time & Optimization Results — baseline vs GreenSync AI comparison](frontend/src/assets/analytics.png)
 
 ## 8. AMD Slingshot and Acceleration Readiness
 
