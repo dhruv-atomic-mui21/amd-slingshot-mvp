@@ -1,0 +1,59 @@
+# ── Python ────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+venv/
+.venv/
+env/
+.env
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+
+# ── Node / Frontend ───────────────────────────────────
+node_modules/
+dist/
+.DS_Store
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# ── SUMO ─────────────────────────────────────────────
+*.sumocfg.bak
+sumo-launchd.log
+
+# ── GSD Framework / AI Tooling ───────────────────────
+.gsd/
+.agent/
+.agents/
+_agent/
+_agents/
+.gemini/
+adapters/
+model_capabilities.yaml
+GSD-STYLE.md
+PROJECT_RULES.md
+new-project.md
+*.gsd.md
+
+# ── OS ───────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Editors ──────────────────────────────────────────
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+
+# ── Secrets ──────────────────────────────────────────
+.env
+.env.local
+.env.*.local
+secrets.yaml

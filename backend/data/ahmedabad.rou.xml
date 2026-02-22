@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  GreenSync SUMO Routes: Ahmedabad Grid
+  Defines vehicle types and traffic flows for the 7x8 grid scenario.
+-->
+<routes>
+    <vType id="car" accel="2.0" decel="4.5" sigma="0.5" length="5" maxSpeed="14"/>
+    <vType id="bus" accel="1.0" decel="4.0" sigma="0.3" length="12" maxSpeed="10"/>
+
+    <!-- Morning rush: flows generated per major axis -->
+    <flow id="flow_h0" type="car" from="edge_0_0_to_0_1" to="edge_0_6_to_0_7"
+          begin="0" end="3600" vehsPerHour="600"/>
+    <flow id="flow_h1" type="car" from="edge_1_0_to_1_1" to="edge_1_6_to_1_7"
+          begin="0" end="3600" vehsPerHour="800"/>
+    <flow id="flow_v0" type="car" from="edge_0_0_to_1_0" to="edge_5_0_to_6_0"
+          begin="0" end="3600" vehsPerHour="500"/>
+    <flow id="flow_bus0" type="bus" from="edge_0_0_to_0_1" to="edge_0_6_to_0_7"
+          begin="0" end="3600" vehsPerHour="60"/>
+</routes>

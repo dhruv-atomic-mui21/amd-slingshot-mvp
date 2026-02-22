@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  GreenSync SUMO Configuration
+  AMD Slingshot 2026 - Ahmedabad Grid Scenario (7x8 intersections)
+  
+  To run manually:
+    sumo-gui -c ahmedabad.sumocfg
+  
+  Requires SUMO >= 1.8.0
+-->
+<configuration>
+    <input>
+        <net-file value="ahmedabad.net.xml"/>
+        <route-files value="ahmedabad.rou.xml"/>
+        <additional-files value="ahmedabad.tll.xml"/>
+    </input>
+    <time>
+        <begin value="0"/>
+        <end value="3600"/>
+        <step-length value="1.0"/>
+    </time>
+    <processing>
+        <time-to-teleport value="120"/>
+    </processing>
+    <report>
+        <verbose value="false"/>
+        <no-step-log value="true"/>
+    </report>
+</configuration>
